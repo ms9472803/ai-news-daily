@@ -1,0 +1,14 @@
+{
+  "feeds": [
+    { "name": "Hugging Face", "url": "https://huggingface.co/blog/feed.xml", "category": "Research" },
+    { "name": "OpenAI", "url": "https://openai.com/news/rss.xml", "category": "Industry" },
+    { "name": "Google AI Blog", "url": "https://blog.google/technology/ai/rss/", "category": "Industry" },
+    { "name": "MIT Technology Review AI", "url": "https://www.technologyreview.com/topic/artificial-intelligence/feed", "category": "Media" },
+    { "name": "The Verge AI", "url": "https://www.theverge.com/rss/ai-artificial-intelligence/index.xml", "category": "Media" },
+    { "name": "TechCrunch AI", "url": "https://techcrunch.com/category/artificial-intelligence/feed/", "category": "Media" },
+    { "name": "Ars Technica AI", "url": "https://arstechnica.com/ai/feed/", "category": "Media" },
+    { "name": "AI News (smol.ai)", "url": "https://news.smol.ai/rss.xml", "category": "Media" },
+    { "name": "Simon Willison", "url": "https://simonwillison.net/atom/everything/", "category": "Research" },
+    { "name": "arXiv cs.AI", "url": "http://export.arxiv.org/rss/cs.AI", "category": "Research" }
+  ]
+}
