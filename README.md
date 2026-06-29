@@ -40,19 +40,21 @@ low-signal items (e.g. smol.ai's daily "not much happened today").
 
 ## Development
 
+This project uses [pnpm](https://pnpm.io/).
+
 ```bash
 git clone git@github.com:ms9472803/ai-news-daily.git
 cd ai-news-daily
-npm install
+pnpm install
 
 # 1. Collect data once (generates public/news.json)
-npm run fetch-news
+pnpm fetch-news
 
 # 2. Start the dev server
-npm run dev
+pnpm dev
 
 # Produce a static build
-npm run build && npm run preview
+pnpm build && pnpm preview
 ```
 
 ## Daily updates

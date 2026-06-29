@@ -26,24 +26,28 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # Must run before setup-node so `cache: pnpm` can find pnpm.
+      # Version comes from the "packageManager" field in package.json.
+      - uses: pnpm/action-setup@v4
+
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: npm
+          cache: pnpm
 
       - name: Install
-        # --include=dev guarantees build tools (vue-tsc, vite) install even if
+        # --prod=false guarantees build tools (vue-tsc, vite) install even if
         # the runner sets NODE_ENV=production (which would otherwise omit devDeps)
-        run: npm ci --include=dev
+        run: pnpm install --frozen-lockfile --prod=false
 
       - name: Collect today's AI news
-        run: npm run fetch-news
+        run: pnpm fetch-news
 
       - name: Build
         # For project pages (https://<user>.github.io/<repo>/), set BASE_PATH=/<repo>/
         env:
           BASE_PATH: /${{ github.event.repository.name }}/
-        run: npm run build
+        run: pnpm build
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
