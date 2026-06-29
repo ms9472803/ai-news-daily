@@ -83,7 +83,7 @@ const messages = {
     },
     pager: { prev: '‹ Prev', next: 'Next ›', label: 'Pagination' },
     theme: { toggle: 'Toggle theme' },
-    footer: { text: 'Auto-collected daily from public RSS feeds · Built with Vue 3 + Vite · Inspired by {gnhf}' },
+    footer: { text: 'Auto-collected daily from public RSS feeds · Built with Vue 3 + Vite' },
     backtotop: { label: 'Back to top' },
     category: { Research: 'Research', Industry: 'Industry', Media: 'Media' },
     topics: {
@@ -134,7 +134,7 @@ const messages = {
     },
     pager: { prev: '‹ 上一頁', next: '下一頁 ›', label: '分頁' },
     theme: { toggle: '切換主題' },
-    footer: { text: '資料由公開 RSS feed 每日自動搜集 · 以 Vue 3 + Vite 製作 · 靈感來自 {gnhf}' },
+    footer: { text: '資料由公開 RSS feed 每日自動搜集 · 以 Vue 3 + Vite 製作' },
     backtotop: { label: '回到頂部' },
     category: { Research: '研究', Industry: '產業', Media: '媒體' },
     topics: {
@@ -185,7 +185,7 @@ const messages = {
     },
     pager: { prev: '‹ 上一页', next: '下一页 ›', label: '分页' },
     theme: { toggle: '切换主题' },
-    footer: { text: '数据由公开 RSS feed 每日自动搜集 · 以 Vue 3 + Vite 制作 · 灵感来自 {gnhf}' },
+    footer: { text: '数据由公开 RSS feed 每日自动搜集 · 以 Vue 3 + Vite 制作' },
     backtotop: { label: '回到顶部' },
     category: { Research: '研究', Industry: '产业', Media: '媒体' },
     topics: {
@@ -236,7 +236,7 @@ const messages = {
     },
     pager: { prev: '‹ 前へ', next: '次へ ›', label: 'ページ送り' },
     theme: { toggle: 'テーマ切り替え' },
-    footer: { text: '公開 RSS フィードから毎日自動収集 · Vue 3 + Vite 製 · {gnhf} に着想' },
+    footer: { text: '公開 RSS フィードから毎日自動収集 · Vue 3 + Vite 製' },
     backtotop: { label: 'トップへ戻る' },
     category: { Research: '研究', Industry: '業界', Media: 'メディア' },
     topics: {

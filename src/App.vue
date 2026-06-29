@@ -272,13 +272,7 @@ const updatedLabel = computed(() => {
     </main>
 
     <footer class="footer">
-      <p>
-        <i18n-t keypath="footer.text">
-          <template #gnhf>
-            <a href="https://github.com/kunchenguid/gnhf" target="_blank" rel="noopener">gnhf</a>
-          </template>
-        </i18n-t>
-      </p>
+      <p>{{ t('footer.text') }}</p>
     </footer>
 
     <Transition name="btt">
