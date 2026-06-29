@@ -1,62 +1,84 @@
-# 每日 AI 新知 · AI News Daily
+# AI News Daily
 
-每天自動搜集多個公開 RSS 來源的最新 AI 文章，並以 **Vue 3 + Vite** 製作的單頁網站呈現。
-無需後端、無需 API key，可直接部署為靜態網站。
+Automatically collects the latest AI articles from multiple public RSS/Atom feeds
+and presents them in a single-page app built with **Vue 3 + Vite**. No backend and
+no API key — it deploys as a fully static site.
 
-> 靈感與工作流來自 [gnhf](https://github.com/kunchenguid/gnhf)（Good Night, Have Fun）—
-> 一個讓 coding agent 在你睡覺時自主迭代專案的工具。詳見 [`gnhf.objective.md`](./gnhf.objective.md)。
+Live demo: **https://ms9472803.github.io/ai-news-daily/**
 
-## 功能
+> Inspired by the workflow of [gnhf](https://github.com/kunchenguid/gnhf)
+> (Good Night, Have Fun) — a tool that lets a coding agent iterate on a project
+> autonomously while you sleep. See [`gnhf.objective.md`](./gnhf.objective.md).
 
-- 🗞️ 從 Hugging Face、OpenAI、Google AI、MIT Tech Review、The Verge、TechCrunch、Ars Technica、arXiv cs.AI 等來源搜集
-- 🔍 即時搜尋（標題 / 摘要）、**分類分頁**與來源篩選
-- ⭐ **收藏**文章（存於 localStorage）並可只看收藏
-- ♾️ **無限捲動**（IntersectionObserver，每次載入 24 篇）
-- 🌙 深色 / 淺色主題（記住偏好、跟隨系統）
-- 🌐 **多國語**（English / 繁中 / 简中 / 日本語）— 預設語言依瀏覽器設定自動判斷,可手動切換並記憶（vue-i18n）
-- 🤖 GitHub Actions 每日 cron 自動更新並部署到 GitHub Pages
-- 📦 純靜態：抓取在 build 時完成，前端只讀 `news.json`
+## Features
 
-## 架構
+- 🗞️ Collects from Hugging Face, OpenAI, Google AI, MIT Tech Review, The Verge,
+  TechCrunch, Ars Technica, smol.ai, Simon Willison, and arXiv cs.AI
+- 🔍 Live search (title / summary) plus topic, category, and source filters
+- ⭐ Favorites (stored in `localStorage`) with a favorites-only view
+- 📄 Pagination — 30 items per page, with pagers at the top and bottom
+- 🌙 Light / dark theme (remembers your choice, follows the system)
+- 🌐 Internationalization (English / 繁體中文 / 简体中文 / 日本語) — the default
+  language is detected from the browser, can be switched manually, and is remembered
+  (vue-i18n)
+- 🤖 A daily GitHub Actions cron re-fetches and deploys to GitHub Pages
+- 📦 Fully static: fetching happens at build time; the frontend only reads `news.json`
+
+## Architecture
 
 ```
 feeds.config.json ─┐
-                   │  npm run fetch-news (Node 內建 fetch + 自製 RSS/Atom 解析)
+                   │  npm run fetch-news (Node built-in fetch + custom RSS/Atom parser)
                    ▼
-            public/news.json ──► Vue 前端 (useNews composable) ──► 卡片列表
+            public/news.json ──► Vue frontend (useNews composable) ──► card list
 ```
 
-抓取邏輯在 `scripts/fetch-news.mjs`：抓取 → 解析 → 去重 → 依時間排序 → 寫入 `public/news.json`。
+The collection logic lives in `scripts/fetch-news.mjs`:
+fetch → parse → dedupe → sort by date → write `public/news.json`.
+It caps each source (so no single feed floods the feed) and filters out
+low-signal items (e.g. smol.ai's daily "not much happened today").
 
-## 開發
+## Development
 
 ```bash
+git clone git@github.com:ms9472803/ai-news-daily.git
 cd ai-news-daily
 npm install
 
-# 1. 先搜集一次資料（產生 public/news.json）
+# 1. Collect data once (generates public/news.json)
 npm run fetch-news
 
-# 2. 啟動開發伺服器
+# 2. Start the dev server
 npm run dev
 
-# 產出靜態檔
+# Produce a static build
 npm run build && npm run preview
 ```
 
-## 每日自動更新
+## Daily updates
 
-`.github/workflows/daily-news.yml` 會在每天 UTC 00:00（台北 08:00）執行：
-重新搜集 → build → 部署到 GitHub Pages。也可在 Actions 頁面手動觸發。
+`.github/workflows/daily-news.yml` runs every day at 00:00 UTC (08:00 Taipei):
+re-fetch → build → deploy to GitHub Pages. It can also be triggered manually from
+the Actions tab.
 
-> 部署到 `https://<user>.github.io/<repo>/` 時，workflow 已自動把 `BASE_PATH`
-> 設為 `/<repo>/`；前端透過 `import.meta.env.BASE_URL` 正確載入 `news.json`。
+To enable it once: **Settings → Pages → Build and deployment → Source: GitHub Actions**.
 
-## 新增來源
+> When deploying to `https://<user>.github.io/<repo>/`, the workflow sets
+> `BASE_PATH` to `/<repo>/` automatically, and the frontend loads `news.json`
+> correctly via `import.meta.env.BASE_URL`.
 
-編輯 `feeds.config.json`，加入一筆 `{ "name", "url", "category" }` 即可，
-解析器同時支援 RSS 與 Atom。
+## Adding a source
 
-## 技術棧
+Edit `feeds.config.json` and add an entry `{ "name", "url", "category" }`.
+The parser supports both RSS and Atom.
 
-Vue 3 (`<script setup>`) · TypeScript · Vite 6 · 零執行期依賴的自製 RSS 解析器
+## Topic filters
+
+Topic quick-filters live in `src/composables/useNews.ts` (`TOPICS`). Each topic has
+a stable `id` and a list of keywords matched against the title and summary; display
+names come from the i18n `topics.<id>` messages.
+
+## Tech stack
+
+Vue 3 (`<script setup>`) · TypeScript · Vite 6 · vue-i18n · a dependency-free
+custom RSS/Atom parser
