@@ -9,7 +9,7 @@
   --shadow: rgba(40, 30, 100, 0.12);
 }
 
-:root[data-theme='dark'] {
+:root[data-theme="dark"] {
   --bg: #0f1117;
   --card-bg: #181b24;
   --text: #e8eaf0;
@@ -34,11 +34,18 @@ body {
   background: var(--bg);
   color: var(--text);
   font-family:
-    'Inter', system-ui, -apple-system, 'Segoe UI', 'PingFang TC',
-    'Noto Sans TC', sans-serif;
+    "Inter",
+    system-ui,
+    -apple-system,
+    "Segoe UI",
+    "PingFang TC",
+    "Noto Sans TC",
+    sans-serif;
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
-  transition: background 0.2s ease, color 0.2s ease;
+  transition:
+    background 0.2s ease,
+    color 0.2s ease;
 }
 
 a {

@@ -1,10 +1,10 @@
 <script setup lang="ts">
 interface Option {
-  value: string
-  label: string
+  value: string;
+  label: string;
 }
-defineProps<{ options: Option[]; modelValue: string; allLabel: string }>()
-defineEmits<{ 'update:modelValue': [value: string] }>()
+defineProps<{ options: Option[]; modelValue: string; allLabel: string }>();
+defineEmits<{ "update:modelValue": [value: string] }>();
 </script>
 
 <template>

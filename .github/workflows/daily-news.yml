@@ -3,7 +3,7 @@ name: Daily AI News
 # Runs every day at 00:00 UTC (08:00 Taipei); also manually triggerable
 on:
   schedule:
-    - cron: '0 0 * * *'
+    - cron: "0 0 * * *"
   workflow_dispatch:
   push:
     branches: [main]

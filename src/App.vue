@@ -1,28 +1,28 @@
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref, watchEffect } from 'vue'
-import { useI18n } from 'vue-i18n'
-import { useNews } from './composables/useNews'
-import NewsCard from './components/NewsCard.vue'
-import SourceFilter from './components/SourceFilter.vue'
-import Pagination from './components/Pagination.vue'
-import LocaleSwitcher from './components/LocaleSwitcher.vue'
-import SettingsPanel from './components/SettingsPanel.vue'
+import { computed, onMounted, onUnmounted, ref, watchEffect } from "vue";
+import { useI18n } from "vue-i18n";
+import { useNews } from "./composables/useNews";
+import NewsCard from "./components/NewsCard.vue";
+import SourceFilter from "./components/SourceFilter.vue";
+import Pagination from "./components/Pagination.vue";
+import LocaleSwitcher from "./components/LocaleSwitcher.vue";
+import SettingsPanel from "./components/SettingsPanel.vue";
 
-const { t, te, locale } = useI18n()
+const { t, te, locale } = useI18n();
 
 // Back-to-top: show after scrolling down 400px
-const showBackToTop = ref(false)
+const showBackToTop = ref(false);
 function onScroll() {
-  showBackToTop.value = window.scrollY > 400
+  showBackToTop.value = window.scrollY > 400;
 }
 onMounted(() => {
-  window.addEventListener('scroll', onScroll, { passive: true })
-})
+  window.addEventListener("scroll", onScroll, { passive: true });
+});
 onUnmounted(() => {
-  window.removeEventListener('scroll', onScroll)
-})
+  window.removeEventListener("scroll", onScroll);
+});
 function scrollToTop() {
-  window.scrollTo({ top: 0, behavior: 'smooth' })
+  window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
 const {
@@ -54,84 +54,80 @@ const {
   isFavorite,
   toggleFavorite,
   reload,
-} = useNews()
+} = useNews();
 
-const settingsOpen = ref(false)
+const settingsOpen = ref(false);
 
 function changePage(p: number) {
-  goToPage(p)
+  goToPage(p);
 }
 
 // Search history dropdown
-const searchFocused = ref(false)
-const showHistory = computed(
-  () => searchFocused.value && searchHistory.value.length > 0,
-)
+const searchFocused = ref(false);
+const showHistory = computed(() => searchFocused.value && searchHistory.value.length > 0);
 function commitSearch() {
-  addSearchTerm(search.value)
-  searchFocused.value = false
+  addSearchTerm(search.value);
+  searchFocused.value = false;
 }
 function pickHistory(term: string) {
-  search.value = term
-  addSearchTerm(term) // move to front
-  searchFocused.value = false
+  search.value = term;
+  addSearchTerm(term); // move to front
+  searchFocused.value = false;
 }
 function onSearchBlur() {
   // Record the settled term; mousedown.prevent on the dropdown keeps focus,
   // so this only fires when the user clicks away.
-  addSearchTerm(search.value)
-  searchFocused.value = false
+  addSearchTerm(search.value);
+  searchFocused.value = false;
 }
 
 // Sources popover: click the source count to list and filter by source
-const showSources = ref(false)
+const showSources = ref(false);
 function pickSource(s: string) {
-  activeSource.value = activeSource.value === s ? 'all' : s
-  showSources.value = false
+  activeSource.value = activeSource.value === s ? "all" : s;
+  showSources.value = false;
 }
 
 // Filter options (stable values, labels follow the active language)
 const topicOptions = computed(() =>
   topicIds.value.map((id) => ({ value: id, label: t(`topics.${id}`) })),
-)
+);
 const categoryOptions = computed(() =>
   categories.value.map((c) => ({
     value: c,
     label: te(`category.${c}`) ? t(`category.${c}`) : c,
   })),
-)
-const sourceOptions = computed(() =>
-  sources.value.map((s) => ({ value: s, label: s })),
-)
+);
+const sourceOptions = computed(() => sources.value.map((s) => ({ value: s, label: s })));
 
 // Keep <html lang> and the document title in sync with the active language
 watchEffect(() => {
-  document.documentElement.lang = locale.value
-  document.title = `${t('app.title')} · AI News Daily`
-})
+  document.documentElement.lang = locale.value;
+  document.title = `${t("app.title")} · AI News Daily`;
+});
 
-const theme = ref<'light' | 'dark'>('light')
-function applyTheme(t: 'light' | 'dark') {
-  theme.value = t
-  document.documentElement.dataset.theme = t
-  localStorage.setItem('ainews-theme', t)
+const theme = ref<"light" | "dark">("light");
+function applyTheme(t: "light" | "dark") {
+  theme.value = t;
+  document.documentElement.dataset.theme = t;
+  localStorage.setItem("ainews-theme", t);
 }
 function toggleTheme() {
-  applyTheme(theme.value === 'light' ? 'dark' : 'light')
+  applyTheme(theme.value === "light" ? "dark" : "light");
 }
 onMounted(() => {
-  const saved = localStorage.getItem('ainews-theme') as 'light' | 'dark' | null
-  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
-  applyTheme(saved ?? (prefersDark ? 'dark' : 'light'))
-})
+  const saved = localStorage.getItem("ainews-theme") as "light" | "dark" | null;
+  const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+  applyTheme(saved ?? (prefersDark ? "dark" : "light"));
+});
 
 const updatedLabel = computed(() => {
-  if (!feed.value) return ''
+  if (!feed.value) return "";
   return new Date(feed.value.generatedAt).toLocaleString(locale.value, {
-    dateStyle: 'medium',
-    timeStyle: 'short',
-  })
-})
+    dateStyle: "medium",
+    timeStyle: "short",
+  });
+});
 </script>
 
 <template>
@@ -141,14 +137,14 @@ const updatedLabel = computed(() => {
         <div class="brand">
           <span class="logo">AI</span>
           <div>
-            <h1>{{ t('app.title') }}</h1>
-            <p class="tagline">{{ t('app.tagline') }}</p>
+            <h1>{{ t("app.title") }}</h1>
+            <p class="tagline">{{ t("app.tagline") }}</p>
           </div>
         </div>
         <div class="hero-actions">
           <LocaleSwitcher />
           <button class="theme-btn" @click="toggleTheme" :title="t('theme.toggle')">
-            {{ theme === 'light' ? '🌙' : '☀️' }}
+            {{ theme === "light" ? "🌙" : "☀️" }}
           </button>
           <button
             class="theme-btn"
@@ -162,15 +158,15 @@ const updatedLabel = computed(() => {
       </div>
 
       <div v-if="feed" class="stats">
-        <span>📰 {{ t('stats.articles', { n: feed.count }) }}</span>
+        <span>📰 {{ t("stats.articles", { n: feed.count }) }}</span>
         <div class="sources-stat">
           <button
             class="sources-toggle"
             :aria-expanded="showSources"
             @click="showSources = !showSources"
           >
-            🔗 {{ t('stats.sources', { n: sources.length }) }}
-            <span class="caret">{{ showSources ? '▴' : '▾' }}</span>
+            🔗 {{ t("stats.sources", { n: sources.length }) }}
+            <span class="caret">{{ showSources ? "▴" : "▾" }}</span>
           </button>
           <div v-if="showSources" class="sources-pop">
             <button
@@ -184,7 +180,7 @@ const updatedLabel = computed(() => {
             </button>
           </div>
         </div>
-        <span>🕒 {{ t('stats.updated', { time: updatedLabel }) }}</span>
+        <span>🕒 {{ t("stats.updated", { time: updatedLabel }) }}</span>
       </div>
 
       <div class="controls">
@@ -201,12 +197,9 @@ const updatedLabel = computed(() => {
             />
             <div v-if="showHistory" class="history">
               <div class="history-head">
-                <span>{{ t('search.recent') }}</span>
-                <button
-                  class="history-clear"
-                  @mousedown.prevent="clearSearchHistory"
-                >
-                  {{ t('search.clear') }}
+                <span>{{ t("search.recent") }}</span>
+                <button class="history-clear" @mousedown.prevent="clearSearchHistory">
+                  {{ t("search.clear") }}
                 </button>
               </div>
               <ul>
@@ -231,17 +224,25 @@ const updatedLabel = computed(() => {
             :class="{ active: favoritesOnly }"
             @click="favoritesOnly = !favoritesOnly"
           >
-            ★ {{ t('filters.favorites', { n: favoriteCount }) }}
+            ★ {{ t("filters.favorites", { n: favoriteCount }) }}
           </button>
         </div>
         <SourceFilter :options="topicOptions" v-model="activeTopic" :all-label="t('filters.all')" />
-        <SourceFilter :options="categoryOptions" v-model="activeCategory" :all-label="t('filters.all')" />
-        <SourceFilter :options="sourceOptions" v-model="activeSource" :all-label="t('filters.all')" />
+        <SourceFilter
+          :options="categoryOptions"
+          v-model="activeCategory"
+          :all-label="t('filters.all')"
+        />
+        <SourceFilter
+          :options="sourceOptions"
+          v-model="activeSource"
+          :all-label="t('filters.all')"
+        />
       </div>
     </header>
 
     <main>
-      <div v-if="loading" class="state">{{ t('state.loading') }}</div>
+      <div v-if="loading" class="state">{{ t("state.loading") }}</div>
 
       <div v-else-if="error" class="state error">
         <p>😢 {{ error }}</p>
@@ -250,11 +251,11 @@ const updatedLabel = computed(() => {
             <template #cmd><code>pnpm fetch-news</code></template>
           </i18n-t>
         </p>
-        <button class="retry" @click="reload">{{ t('state.retry') }}</button>
+        <button class="retry" @click="reload">{{ t("state.retry") }}</button>
       </div>
 
       <div v-else-if="filtered.length === 0" class="state">
-        {{ favoritesOnly ? t('state.emptyFav') : t('state.empty') }}
+        {{ favoritesOnly ? t("state.emptyFav") : t("state.empty") }}
       </div>
 
       <template v-else>
@@ -273,19 +274,23 @@ const updatedLabel = computed(() => {
             @toggle-favorite="toggleFavorite"
           />
         </div>
-        <Pagination
-          :current="currentPage"
-          :total="totalPages"
-          @change="changePage"
-        />
+        <Pagination :current="currentPage" :total="totalPages" @change="changePage" />
         <p class="count">
-          {{ t('list.count', { start: pageStart, end: pageEnd, total: filtered.length, page: currentPage, pages: totalPages }) }}
+          {{
+            t("list.count", {
+              start: pageStart,
+              end: pageEnd,
+              total: filtered.length,
+              page: currentPage,
+              pages: totalPages,
+            })
+          }}
         </p>
       </template>
     </main>
 
     <footer class="footer">
-      <p>{{ t('footer.text') }}</p>
+      <p>{{ t("footer.text") }}</p>
     </footer>
 
     <SettingsPanel
@@ -616,7 +621,9 @@ code {
   line-height: 1;
   cursor: pointer;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
   z-index: 100;
 }
 .back-to-top:hover {
@@ -625,7 +632,9 @@ code {
 }
 .btt-enter-active,
 .btt-leave-active {
-  transition: opacity 0.2s ease, transform 0.2s ease;
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
 }
 .btt-enter-from,
 .btt-leave-to {

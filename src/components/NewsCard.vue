@@ -1,36 +1,36 @@
 <script setup lang="ts">
-import { computed } from 'vue'
-import { useI18n } from 'vue-i18n'
-import type { NewsItem } from '../types'
+import { computed } from "vue";
+import { useI18n } from "vue-i18n";
+import type { NewsItem } from "../types";
 
-const props = defineProps<{ item: NewsItem; favorite: boolean }>()
-defineEmits<{ toggleFavorite: [link: string] }>()
+const props = defineProps<{ item: NewsItem; favorite: boolean }>();
+defineEmits<{ toggleFavorite: [link: string] }>();
 
-const { t, locale } = useI18n()
+const { t, locale } = useI18n();
 
 const dateLabel = computed(() => {
-  if (!props.item.publishedAt) return t('card.unknownDate')
-  const d = new Date(props.item.publishedAt)
-  const now = Date.now()
-  const diffH = Math.round((now - d.getTime()) / 3_600_000)
-  if (diffH < 1) return t('card.justNow')
-  if (diffH < 24) return t('card.hoursAgo', { n: diffH })
-  const diffD = Math.round(diffH / 24)
-  if (diffD < 7) return t('card.daysAgo', { n: diffD })
+  if (!props.item.publishedAt) return t("card.unknownDate");
+  const d = new Date(props.item.publishedAt);
+  const now = Date.now();
+  const diffH = Math.round((now - d.getTime()) / 3_600_000);
+  if (diffH < 1) return t("card.justNow");
+  if (diffH < 24) return t("card.hoursAgo", { n: diffH });
+  const diffD = Math.round(diffH / 24);
+  if (diffD < 7) return t("card.daysAgo", { n: diffD });
   return d.toLocaleDateString(locale.value, {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-  })
-})
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  });
+});
 
 const host = computed(() => {
   try {
-    return new URL(props.item.link).hostname.replace(/^www\./, '')
+    return new URL(props.item.link).hostname.replace(/^www\./, "");
   } catch {
-    return ''
+    return "";
   }
-})
+});
 </script>
 
 <template>
@@ -47,7 +47,7 @@ const host = computed(() => {
         :title="favorite ? t('card.unfav') : t('card.fav')"
         @click="$emit('toggleFavorite', item.link)"
       >
-        {{ favorite ? '★' : '☆' }}
+        {{ favorite ? "★" : "☆" }}
       </button>
     </div>
     <h2 class="card-title">
@@ -71,7 +71,10 @@ const host = computed(() => {
   background: var(--card-bg);
   border: 1px solid var(--border);
   border-radius: 14px;
-  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease,
+    border-color 0.15s ease;
 }
 .card:hover {
   transform: translateY(-3px);
@@ -108,7 +111,9 @@ const host = computed(() => {
   line-height: 1;
   color: var(--text-dim);
   padding: 0.1rem 0.2rem;
-  transition: color 0.15s ease, transform 0.15s ease;
+  transition:
+    color 0.15s ease,
+    transform 0.15s ease;
 }
 .fav:hover {
   transform: scale(1.2);

@@ -1,55 +1,53 @@
 <script setup lang="ts">
-import { computed, nextTick, onMounted, onUnmounted, ref } from 'vue'
-import { useI18n } from 'vue-i18n'
-import { PAGE_SIZE_PRESETS } from '../composables/useNews'
+import { computed, nextTick, onMounted, onUnmounted, ref } from "vue";
+import { useI18n } from "vue-i18n";
+import { PAGE_SIZE_PRESETS } from "../composables/useNews";
 
-const props = defineProps<{ pageSize: number }>()
-const emit = defineEmits<{ 'update:pageSize': [n: number]; close: [] }>()
-const { t } = useI18n()
+const props = defineProps<{ pageSize: number }>();
+const emit = defineEmits<{ "update:pageSize": [n: number]; close: [] }>();
+const { t } = useI18n();
 
-const presets = PAGE_SIZE_PRESETS
-const isPreset = (n: number) => (presets as readonly number[]).includes(n)
+const presets = PAGE_SIZE_PRESETS;
+const isPreset = (n: number) => (presets as readonly number[]).includes(n);
 
-const mode = ref<'preset' | 'custom'>(isPreset(props.pageSize) ? 'preset' : 'custom')
-const customValue = ref<number>(props.pageSize)
-const customInput = ref<HTMLInputElement | null>(null)
+const mode = ref<"preset" | "custom">(isPreset(props.pageSize) ? "preset" : "custom");
+const customValue = ref<number>(props.pageSize);
+const customInput = ref<HTMLInputElement | null>(null);
 
-const customActive = computed(() => mode.value === 'custom')
+const customActive = computed(() => mode.value === "custom");
 
 function selectPreset(n: number) {
-  mode.value = 'preset'
-  emit('update:pageSize', n)
+  mode.value = "preset";
+  emit("update:pageSize", n);
 }
 async function chooseCustom() {
-  mode.value = 'custom'
-  await nextTick()
-  customInput.value?.focus()
+  mode.value = "custom";
+  await nextTick();
+  customInput.value?.focus();
 }
 function applyCustom() {
-  const v = Math.min(200, Math.max(1, Math.floor(Number(customValue.value) || 0)))
-  customValue.value = v
-  emit('update:pageSize', v)
+  const v = Math.min(200, Math.max(1, Math.floor(Number(customValue.value) || 0)));
+  customValue.value = v;
+  emit("update:pageSize", v);
 }
 
 function onKeydown(e: KeyboardEvent) {
-  if (e.key === 'Escape') emit('close')
+  if (e.key === "Escape") emit("close");
 }
-onMounted(() => window.addEventListener('keydown', onKeydown))
-onUnmounted(() => window.removeEventListener('keydown', onKeydown))
+onMounted(() => window.addEventListener("keydown", onKeydown));
+onUnmounted(() => window.removeEventListener("keydown", onKeydown));
 </script>
 
 <template>
   <div class="overlay" @click.self="emit('close')">
     <div class="dialog" role="dialog" aria-modal="true">
       <header class="dialog-head">
-        <h2>{{ t('settings.title') }}</h2>
-        <button class="close" :aria-label="t('settings.close')" @click="emit('close')">
-          ×
-        </button>
+        <h2>{{ t("settings.title") }}</h2>
+        <button class="close" :aria-label="t('settings.close')" @click="emit('close')">×</button>
       </header>
 
       <section class="field">
-        <label class="field-label">{{ t('settings.itemsPerPage') }}</label>
+        <label class="field-label">{{ t("settings.itemsPerPage") }}</label>
         <div class="chips">
           <button
             v-for="n in presets"
@@ -61,7 +59,7 @@ onUnmounted(() => window.removeEventListener('keydown', onKeydown))
             {{ n }}
           </button>
           <button class="chip" :class="{ active: customActive }" @click="chooseCustom">
-            {{ t('settings.custom') }}
+            {{ t("settings.custom") }}
           </button>
         </div>
         <input

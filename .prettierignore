@@ -1,0 +1,5 @@
+# Used by oxfmt (it reads .gitignore + .prettierignore by default).
+# Generated or machine-managed files — never reformat these.
+dist/
+pnpm-lock.yaml
+public/news.json
