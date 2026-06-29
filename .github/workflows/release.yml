@@ -2,8 +2,10 @@ name: Release
 
 run-name: Release v${{ inputs.release_version }}
 
-# Manually triggered: fill in a version, it builds + deploys to Pages,
-# then tags and publishes a GitHub Release.
+# Manually triggered: fill in a version. It creates an empty "Version X.Y.Z"
+# marker commit on the branch, then tags it and publishes a GitHub Release.
+# Deployment is intentionally NOT done here — the Daily AI News workflow already
+# deploys main to Pages (and would overwrite any release deploy anyway).
 on:
   workflow_dispatch:
     inputs:
@@ -13,26 +15,18 @@ on:
         type: string
 
 permissions:
-  contents: write # create tag + release
-  pages: write
-  id-token: write
-
-concurrency:
-  group: pages
-  cancel-in-progress: false
+  contents: write # push the version commit + create tag/release
 
 jobs:
   release:
     runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deploy.outputs.page_url }}
     env:
       RELEASE_VERSION: ${{ inputs.release_version }}
     steps:
       - uses: actions/checkout@v7
         with:
           fetch-depth: 0
+          ref: ${{ github.ref_name }}
 
       - name: Validate version and check tag is free
         run: |
@@ -45,39 +39,21 @@ jobs:
             exit 1
           fi
 
-      - uses: pnpm/action-setup@v6
+      - name: Create version commit
+        id: version
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit --allow-empty -m "Version $RELEASE_VERSION"
+          git push origin "HEAD:${GITHUB_REF_NAME}"
+          echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
 
-      - uses: actions/setup-node@v6
-        with:
-          node-version: 22
-          cache: pnpm
-
-      - name: Install
-        run: pnpm install --frozen-lockfile --prod=false
-
-      - name: Collect today's AI news
-        run: pnpm fetch-news
-
-      - name: Build
-        env:
-          BASE_PATH: /${{ github.event.repository.name }}/
-        run: pnpm build
-
-      - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@v5
-        with:
-          path: dist
-
-      - name: Deploy to GitHub Pages
-        id: deploy
-        uses: actions/deploy-pages@v5
-
-      - name: Create GitHub release
+      - name: Create tag and GitHub release
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           tag="v$RELEASE_VERSION"
           gh release create "$tag" \
-            --target "$GITHUB_SHA" \
+            --target "${{ steps.version.outputs.sha }}" \
             --title "$tag" \
-            --notes "Release $tag · Live: ${{ steps.deploy.outputs.page_url }}"
+            --notes "Release $tag"
