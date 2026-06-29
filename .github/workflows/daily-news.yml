@@ -28,11 +28,13 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: npm
 
       - name: Install
-        run: npm ci
+        # --include=dev guarantees build tools (vue-tsc, vite) install even if
+        # the runner sets NODE_ENV=production (which would otherwise omit devDeps)
+        run: npm ci --include=dev
 
       - name: Collect today's AI news
         run: npm run fetch-news
