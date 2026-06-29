@@ -151,7 +151,7 @@ const updatedLabel = computed(() => {
         <p>😢 {{ error }}</p>
         <p class="hint">
           <i18n-t keypath="state.errorHint">
-            <template #cmd><code>npm run fetch-news</code></template>
+            <template #cmd><code>pnpm fetch-news</code></template>
           </i18n-t>
         </p>
         <button class="retry" @click="reload">{{ t('state.retry') }}</button>

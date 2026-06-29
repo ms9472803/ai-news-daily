@@ -117,6 +117,12 @@ function parseFeed(xml, source) {
   return items
 }
 
+// Retry on timeouts/network errors (no .status) and transient server errors;
+// don't retry 4xx client errors (e.g. 404/403) — they won't recover.
+function isRetryable(err) {
+  return err.status === undefined || err.status >= 500 || err.status === 429
+}
+
 async function fetchFeed(feed) {
   for (let attempt = 0; attempt <= FETCH_RETRIES; attempt++) {
     const controller = new AbortController()
@@ -126,19 +132,21 @@ async function fetchFeed(feed) {
         signal: controller.signal,
         headers: { 'User-Agent': 'ai-news-daily/1.0 (+https://github.com)' },
       })
-      if (!res.ok) throw new Error(`HTTP ${res.status}`)
+      if (!res.ok) {
+        const e = new Error(`HTTP ${res.status}`)
+        e.status = res.status
+        throw e
+      }
       const xml = await res.text()
       const items = parseFeed(xml, feed)
       console.log(`  ✓ ${feed.name}: ${items.length} 篇`)
       return items
     } catch (err) {
-      clearTimeout(timer)
-      const isLast = attempt === FETCH_RETRIES
-      if (isLast) {
+      if (attempt === FETCH_RETRIES || !isRetryable(err)) {
         console.warn(`  ✗ ${feed.name}: ${err.message}`)
         return []
       }
-      const delay = RETRY_DELAY_MS * (attempt + 1)
+      const delay = RETRY_DELAY_MS * 2 ** attempt // exponential backoff: 1500ms, 3000ms, …
       console.warn(`  ↻ ${feed.name}: ${err.message} — retrying in ${delay}ms (attempt ${attempt + 1}/${FETCH_RETRIES})`)
       await new Promise((r) => setTimeout(r, delay))
     } finally {
