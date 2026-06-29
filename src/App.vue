@@ -78,6 +78,13 @@ function onSearchBlur() {
   searchFocused.value = false
 }
 
+// Sources popover: click the source count to list and filter by source
+const showSources = ref(false)
+function pickSource(s: string) {
+  activeSource.value = activeSource.value === s ? 'all' : s
+  showSources.value = false
+}
+
 // Filter options (stable values, labels follow the active language)
 const topicOptions = computed(() =>
   topicIds.value.map((id) => ({ value: id, label: t(`topics.${id}`) })),
@@ -143,7 +150,27 @@ const updatedLabel = computed(() => {
 
       <div v-if="feed" class="stats">
         <span>📰 {{ t('stats.articles', { n: feed.count }) }}</span>
-        <span>🔗 {{ t('stats.sources', { n: feed.sources.length }) }}</span>
+        <div class="sources-stat">
+          <button
+            class="sources-toggle"
+            :aria-expanded="showSources"
+            @click="showSources = !showSources"
+          >
+            🔗 {{ t('stats.sources', { n: sources.length }) }}
+            <span class="caret">{{ showSources ? '▴' : '▾' }}</span>
+          </button>
+          <div v-if="showSources" class="sources-pop">
+            <button
+              v-for="s in sources"
+              :key="s"
+              class="source-item"
+              :class="{ active: activeSource === s }"
+              @click="pickSource(s)"
+            >
+              {{ s }}
+            </button>
+          </div>
+        </div>
         <span>🕒 {{ t('stats.updated', { time: updatedLabel }) }}</span>
       </div>
 
@@ -330,9 +357,64 @@ h1 {
 .stats {
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
   gap: 1.25rem;
   font-size: 0.85rem;
   color: var(--text-dim);
+}
+.sources-stat {
+  position: relative;
+}
+.sources-toggle {
+  border: none;
+  background: none;
+  color: var(--text-dim);
+  font-size: 0.85rem;
+  cursor: pointer;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+.sources-toggle:hover {
+  color: var(--accent);
+}
+.caret {
+  font-size: 0.7rem;
+}
+.sources-pop {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  z-index: 50;
+  min-width: 200px;
+  max-height: 320px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  padding: 0.3rem;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: 0 10px 30px var(--shadow);
+}
+.source-item {
+  text-align: left;
+  border: none;
+  background: none;
+  color: var(--text);
+  padding: 0.45rem 0.6rem;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.source-item:hover {
+  background: var(--accent-soft);
+}
+.source-item.active {
+  color: var(--accent);
+  font-weight: 600;
 }
 .controls {
   display: flex;
