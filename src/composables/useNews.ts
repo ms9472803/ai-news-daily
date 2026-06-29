@@ -13,6 +13,9 @@ export const TOPICS: { id: string; match: string[] }[] = [
   { id: 'llama', match: ['llama', 'meta ai'] },
   { id: 'opensource', match: ['open-source', 'open source', 'open weight', 'open-weight'] },
   { id: 'agent', match: ['agent', 'agentic'] },
+  { id: 'multimodal', match: ['multimodal', 'multi-modal', 'vision', 'image generation', 'text-to-image', 'vlm'] },
+  { id: 'reasoning', match: ['reasoning', 'chain-of-thought', 'chain of thought', 'inference-time', 'thinking model'] },
+  { id: 'mistral', match: ['mistral', 'mixtral'] },
 ]
 
 function loadFavorites(): Set<string> {

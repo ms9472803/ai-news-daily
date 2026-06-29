@@ -17,6 +17,8 @@ const OUT_PATH = join(ROOT, 'public', 'news.json')
 const MAX_ITEMS = 200 // Max number of articles to keep
 const MAX_PER_SOURCE = 30 // Max articles per source, to stop one source (e.g. arXiv) from flooding
 const FETCH_TIMEOUT_MS = 15000
+const FETCH_RETRIES = 2 // Retry transient failures up to this many times
+const RETRY_DELAY_MS = 1500 // Base delay between retries (doubles each attempt)
 
 // Low-signal titles (e.g. smol.ai's daily "not much happened today") — skip so they don't crowd out real news
 const NOISE_TITLE_PATTERNS = [/^not much happened today/i]
@@ -116,24 +118,34 @@ function parseFeed(xml, source) {
 }
 
 async function fetchFeed(feed) {
-  const controller = new AbortController()
-  const timer = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS)
-  try {
-    const res = await fetch(feed.url, {
-      signal: controller.signal,
-      headers: { 'User-Agent': 'ai-news-daily/1.0 (+https://github.com)' },
-    })
-    if (!res.ok) throw new Error(`HTTP ${res.status}`)
-    const xml = await res.text()
-    const items = parseFeed(xml, feed)
-    console.log(`  ✓ ${feed.name}: ${items.length} 篇`)
-    return items
-  } catch (err) {
-    console.warn(`  ✗ ${feed.name}: ${err.message}`)
-    return []
-  } finally {
-    clearTimeout(timer)
+  for (let attempt = 0; attempt <= FETCH_RETRIES; attempt++) {
+    const controller = new AbortController()
+    const timer = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS)
+    try {
+      const res = await fetch(feed.url, {
+        signal: controller.signal,
+        headers: { 'User-Agent': 'ai-news-daily/1.0 (+https://github.com)' },
+      })
+      if (!res.ok) throw new Error(`HTTP ${res.status}`)
+      const xml = await res.text()
+      const items = parseFeed(xml, feed)
+      console.log(`  ✓ ${feed.name}: ${items.length} 篇`)
+      return items
+    } catch (err) {
+      clearTimeout(timer)
+      const isLast = attempt === FETCH_RETRIES
+      if (isLast) {
+        console.warn(`  ✗ ${feed.name}: ${err.message}`)
+        return []
+      }
+      const delay = RETRY_DELAY_MS * (attempt + 1)
+      console.warn(`  ↻ ${feed.name}: ${err.message} — retrying in ${delay}ms (attempt ${attempt + 1}/${FETCH_RETRIES})`)
+      await new Promise((r) => setTimeout(r, delay))
+    } finally {
+      clearTimeout(timer)
+    }
   }
+  return []
 }
 
 async function main() {

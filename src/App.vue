@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, watchEffect } from 'vue'
+import { computed, onMounted, onUnmounted, ref, watchEffect } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useNews } from './composables/useNews'
 import NewsCard from './components/NewsCard.vue'
@@ -8,6 +8,21 @@ import Pagination from './components/Pagination.vue'
 import LocaleSwitcher from './components/LocaleSwitcher.vue'
 
 const { t, te, locale } = useI18n()
+
+// Back-to-top: show after scrolling down 400px
+const showBackToTop = ref(false)
+function onScroll() {
+  showBackToTop.value = window.scrollY > 400
+}
+onMounted(() => {
+  window.addEventListener('scroll', onScroll, { passive: true })
+})
+onUnmounted(() => {
+  window.removeEventListener('scroll', onScroll)
+})
+function scrollToTop() {
+  window.scrollTo({ top: 0, behavior: 'smooth' })
+}
 
 const {
   feed,
@@ -182,6 +197,18 @@ const updatedLabel = computed(() => {
         </i18n-t>
       </p>
     </footer>
+
+    <Transition name="btt">
+      <button
+        v-if="showBackToTop"
+        class="back-to-top"
+        :title="t('backtotop.label')"
+        :aria-label="t('backtotop.label')"
+        @click="scrollToTop"
+      >
+        ↑
+      </button>
+    </Transition>
   </div>
 </template>
 
@@ -344,5 +371,35 @@ code {
 }
 .footer a {
   color: var(--accent);
+}
+.back-to-top {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: none;
+  background: var(--accent);
+  color: #fff;
+  font-size: 1.2rem;
+  line-height: 1;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  z-index: 100;
+}
+.back-to-top:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+}
+.btt-enter-active,
+.btt-leave-active {
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+.btt-enter-from,
+.btt-leave-to {
+  opacity: 0;
+  transform: translateY(12px);
 }
 </style>

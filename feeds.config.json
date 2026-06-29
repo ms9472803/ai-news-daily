@@ -9,6 +9,9 @@
     { "name": "Ars Technica AI", "url": "https://arstechnica.com/ai/feed/", "category": "Media" },
     { "name": "AI News (smol.ai)", "url": "https://news.smol.ai/rss.xml", "category": "Media" },
     { "name": "Simon Willison", "url": "https://simonwillison.net/atom/everything/", "category": "Research" },
-    { "name": "arXiv cs.AI", "url": "http://export.arxiv.org/rss/cs.AI", "category": "Research" }
+    { "name": "arXiv cs.AI", "url": "http://export.arxiv.org/rss/cs.AI", "category": "Research" },
+    { "name": "VentureBeat AI", "url": "https://venturebeat.com/category/ai/feed/", "category": "Media" },
+    { "name": "Wired AI", "url": "https://www.wired.com/feed/tag/artificial-intelligence/latest/rss", "category": "Media" },
+    { "name": "fast.ai", "url": "https://www.fast.ai/index.xml", "category": "Research" }
   ]
 }
