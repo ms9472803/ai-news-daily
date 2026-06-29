@@ -29,6 +29,10 @@ const {
   loading,
   error,
   search,
+  searchHistory,
+  addSearchTerm,
+  removeSearchTerm,
+  clearSearchHistory,
   activeSource,
   activeCategory,
   activeTopic,
@@ -51,6 +55,27 @@ const {
 
 function changePage(p: number) {
   goToPage(p)
+}
+
+// Search history dropdown
+const searchFocused = ref(false)
+const showHistory = computed(
+  () => searchFocused.value && searchHistory.value.length > 0,
+)
+function commitSearch() {
+  addSearchTerm(search.value)
+  searchFocused.value = false
+}
+function pickHistory(term: string) {
+  search.value = term
+  addSearchTerm(term) // move to front
+  searchFocused.value = false
+}
+function onSearchBlur() {
+  // Record the settled term; mousedown.prevent on the dropdown keeps focus,
+  // so this only fires when the user clicks away.
+  addSearchTerm(search.value)
+  searchFocused.value = false
 }
 
 // Filter options (stable values, labels follow the active language)
@@ -124,12 +149,43 @@ const updatedLabel = computed(() => {
 
       <div class="controls">
         <div class="search-row">
-          <input
-            v-model="search"
-            class="search"
-            type="search"
-            :placeholder="'🔍 ' + t('search.placeholder')"
-          />
+          <div class="search-wrap">
+            <input
+              v-model="search"
+              class="search"
+              type="search"
+              :placeholder="'🔍 ' + t('search.placeholder')"
+              @focus="searchFocused = true"
+              @blur="onSearchBlur"
+              @keyup.enter="commitSearch"
+            />
+            <div v-if="showHistory" class="history">
+              <div class="history-head">
+                <span>{{ t('search.recent') }}</span>
+                <button
+                  class="history-clear"
+                  @mousedown.prevent="clearSearchHistory"
+                >
+                  {{ t('search.clear') }}
+                </button>
+              </div>
+              <ul>
+                <li v-for="term in searchHistory" :key="term">
+                  <button class="history-pick" @mousedown.prevent="pickHistory(term)">
+                    <span class="history-icon">🕘</span>{{ term }}
+                  </button>
+                  <button
+                    class="history-del"
+                    :aria-label="t('search.removeOne')"
+                    :title="t('search.removeOne')"
+                    @mousedown.prevent="removeSearchTerm(term)"
+                  >
+                    ×
+                  </button>
+                </li>
+              </ul>
+            </div>
+          </div>
           <button
             class="fav-toggle"
             :class="{ active: favoritesOnly }"
@@ -287,8 +343,12 @@ h1 {
   display: flex;
   gap: 0.6rem;
 }
-.search {
+.search-wrap {
+  position: relative;
   flex: 1;
+}
+.search {
+  width: 100%;
   padding: 0.7rem 1rem;
   border: 1px solid var(--border);
   border-radius: 12px;
@@ -299,6 +359,80 @@ h1 {
 .search:focus {
   outline: none;
   border-color: var(--accent);
+}
+.history {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  z-index: 50;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: 0 10px 30px var(--shadow);
+  overflow: hidden;
+}
+.history-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0.85rem;
+  font-size: 0.75rem;
+  color: var(--text-dim);
+  border-bottom: 1px solid var(--border);
+}
+.history-clear {
+  border: none;
+  background: none;
+  color: var(--accent);
+  font-size: 0.75rem;
+  cursor: pointer;
+}
+.history ul {
+  list-style: none;
+  margin: 0;
+  padding: 0.25rem;
+}
+.history li {
+  display: flex;
+  align-items: center;
+}
+.history-pick {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  border: none;
+  background: none;
+  color: var(--text);
+  text-align: left;
+  padding: 0.5rem 0.6rem;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.history-pick:hover {
+  background: var(--accent-soft);
+}
+.history-icon {
+  opacity: 0.6;
+}
+.history-del {
+  border: none;
+  background: none;
+  color: var(--text-dim);
+  font-size: 1.1rem;
+  line-height: 1;
+  padding: 0.3rem 0.6rem;
+  cursor: pointer;
+  border-radius: 8px;
+}
+.history-del:hover {
+  color: #e5484d;
+  background: var(--accent-soft);
 }
 .fav-toggle {
   white-space: nowrap;

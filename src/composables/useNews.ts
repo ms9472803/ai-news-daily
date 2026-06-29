@@ -2,6 +2,8 @@ import { computed, ref, watch, onMounted } from 'vue'
 import type { NewsFeed, NewsItem } from '../types'
 
 const FAV_KEY = 'ainews-favorites'
+const SEARCH_KEY = 'ainews-search-history'
+const MAX_HISTORY = 5
 const PAGE_SIZE = 30
 
 // Topic quick-filters: match keywords against title + summary (case-insensitive).
@@ -27,6 +29,18 @@ function loadFavorites(): Set<string> {
   }
 }
 
+function loadHistory(): string[] {
+  try {
+    const raw = localStorage.getItem(SEARCH_KEY)
+    const arr = raw ? (JSON.parse(raw) as unknown) : []
+    return Array.isArray(arr)
+      ? arr.filter((t): t is string => typeof t === 'string').slice(0, MAX_HISTORY)
+      : []
+  } catch {
+    return []
+  }
+}
+
 export function useNews() {
   const feed = ref<NewsFeed | null>(null)
   const loading = ref(true)
@@ -37,6 +51,29 @@ export function useNews() {
   const activeCategory = ref<string>('all')
   const activeTopic = ref<string>('all')
   const favoritesOnly = ref(false)
+
+  // Search history (most recent first, max MAX_HISTORY, persisted in localStorage)
+  const searchHistory = ref<string[]>(loadHistory())
+  function persistHistory() {
+    localStorage.setItem(SEARCH_KEY, JSON.stringify(searchHistory.value))
+  }
+  function addSearchTerm(raw: string) {
+    const term = raw.trim()
+    if (!term) return
+    searchHistory.value = [
+      term,
+      ...searchHistory.value.filter((t) => t !== term),
+    ].slice(0, MAX_HISTORY)
+    persistHistory()
+  }
+  function removeSearchTerm(term: string) {
+    searchHistory.value = searchHistory.value.filter((t) => t !== term)
+    persistHistory()
+  }
+  function clearSearchHistory() {
+    searchHistory.value = []
+    persistHistory()
+  }
 
   // Favorites (keyed by link, persisted in localStorage)
   const favorites = ref<Set<string>>(loadFavorites())
@@ -133,6 +170,10 @@ export function useNews() {
     loading,
     error,
     search,
+    searchHistory,
+    addSearchTerm,
+    removeSearchTerm,
+    clearSearchHistory,
     activeSource,
     activeCategory,
     activeTopic,

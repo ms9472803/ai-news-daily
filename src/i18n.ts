@@ -57,7 +57,12 @@ const messages = {
       sources: '{n} sources',
       updated: 'Updated {time}',
     },
-    search: { placeholder: 'Search title or content…' },
+    search: {
+      placeholder: 'Search title or content…',
+      recent: 'Recent searches',
+      removeOne: 'Remove this search',
+      clear: 'Clear all',
+    },
     filters: { all: 'All', favorites: 'Favorites ({n})' },
     state: {
       loading: 'Loading…',
@@ -104,7 +109,12 @@ const messages = {
       sources: '{n} 個來源',
       updated: '更新於 {time}',
     },
-    search: { placeholder: '搜尋標題或內容…' },
+    search: {
+      placeholder: '搜尋標題或內容…',
+      recent: '最近搜尋',
+      removeOne: '刪除此搜尋',
+      clear: '全部清除',
+    },
     filters: { all: '全部', favorites: '收藏 ({n})' },
     state: {
       loading: '載入中…',
@@ -150,7 +160,12 @@ const messages = {
       sources: '{n} 个来源',
       updated: '更新于 {time}',
     },
-    search: { placeholder: '搜索标题或内容…' },
+    search: {
+      placeholder: '搜索标题或内容…',
+      recent: '最近搜索',
+      removeOne: '删除此搜索',
+      clear: '全部清除',
+    },
     filters: { all: '全部', favorites: '收藏 ({n})' },
     state: {
       loading: '加载中…',
@@ -196,7 +211,12 @@ const messages = {
       sources: '{n} 件のソース',
       updated: '更新: {time}',
     },
-    search: { placeholder: 'タイトルや内容を検索…' },
+    search: {
+      placeholder: 'タイトルや内容を検索…',
+      recent: '最近の検索',
+      removeOne: 'この検索を削除',
+      clear: 'すべて消去',
+    },
     filters: { all: 'すべて', favorites: 'お気に入り ({n})' },
     state: {
       loading: '読み込み中…',
