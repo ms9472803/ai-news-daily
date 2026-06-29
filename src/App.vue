@@ -6,6 +6,7 @@ import NewsCard from './components/NewsCard.vue'
 import SourceFilter from './components/SourceFilter.vue'
 import Pagination from './components/Pagination.vue'
 import LocaleSwitcher from './components/LocaleSwitcher.vue'
+import SettingsPanel from './components/SettingsPanel.vue'
 
 const { t, te, locale } = useI18n()
 
@@ -47,11 +48,15 @@ const {
   pageStart,
   pageEnd,
   goToPage,
+  pageSize,
+  setPageSize,
   favoriteCount,
   isFavorite,
   toggleFavorite,
   reload,
 } = useNews()
+
+const settingsOpen = ref(false)
 
 function changePage(p: number) {
   goToPage(p)
@@ -144,6 +149,14 @@ const updatedLabel = computed(() => {
           <LocaleSwitcher />
           <button class="theme-btn" @click="toggleTheme" :title="t('theme.toggle')">
             {{ theme === 'light' ? '🌙' : '☀️' }}
+          </button>
+          <button
+            class="theme-btn"
+            :title="t('settings.open')"
+            :aria-label="t('settings.open')"
+            @click="settingsOpen = true"
+          >
+            ⚙️
           </button>
         </div>
       </div>
@@ -274,6 +287,13 @@ const updatedLabel = computed(() => {
     <footer class="footer">
       <p>{{ t('footer.text') }}</p>
     </footer>
+
+    <SettingsPanel
+      v-if="settingsOpen"
+      :page-size="pageSize"
+      @update:page-size="setPageSize"
+      @close="settingsOpen = false"
+    />
 
     <Transition name="btt">
       <button

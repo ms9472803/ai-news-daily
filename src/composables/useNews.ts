@@ -3,8 +3,17 @@ import type { NewsFeed, NewsItem } from '../types'
 
 const FAV_KEY = 'ainews-favorites'
 const SEARCH_KEY = 'ainews-search-history'
+const PAGE_SIZE_KEY = 'ainews-page-size'
 const MAX_HISTORY = 5
-const PAGE_SIZE = 30
+const DEFAULT_PAGE_SIZE = 30
+const MAX_PAGE_SIZE = 200 // == MAX_ITEMS in fetch-news.mjs; beyond this shows everything
+export const PAGE_SIZE_PRESETS = [10, 20, 30] as const
+
+function loadPageSize(): number {
+  const raw = Number(localStorage.getItem(PAGE_SIZE_KEY))
+  if (Number.isInteger(raw) && raw >= 1 && raw <= MAX_PAGE_SIZE) return raw
+  return DEFAULT_PAGE_SIZE
+}
 
 // Topic quick-filters: match keywords against title + summary (case-insensitive).
 // `id` is a stable key (unchanged across languages); display names come from i18n topics.<id>.
@@ -135,29 +144,41 @@ export function useNews() {
     })
   })
 
-  // Pagination: PAGE_SIZE items per page
+  // Pagination: user-configurable page size (persisted in localStorage)
+  const pageSize = ref(loadPageSize())
+  function setPageSize(n: number) {
+    const v = Math.min(MAX_PAGE_SIZE, Math.max(1, Math.floor(n || 0)))
+    pageSize.value = v
+    localStorage.setItem(PAGE_SIZE_KEY, String(v))
+  }
+
   const currentPage = ref(1)
   const totalPages = computed(() =>
-    Math.max(1, Math.ceil(filtered.value.length / PAGE_SIZE)),
+    Math.max(1, Math.ceil(filtered.value.length / pageSize.value)),
   )
   const paged = computed<NewsItem[]>(() => {
-    const start = (currentPage.value - 1) * PAGE_SIZE
-    return filtered.value.slice(start, start + PAGE_SIZE)
+    const start = (currentPage.value - 1) * pageSize.value
+    return filtered.value.slice(start, start + pageSize.value)
   })
   const pageStart = computed(() =>
-    filtered.value.length === 0 ? 0 : (currentPage.value - 1) * PAGE_SIZE + 1,
+    filtered.value.length === 0
+      ? 0
+      : (currentPage.value - 1) * pageSize.value + 1,
   )
   const pageEnd = computed(() =>
-    Math.min(currentPage.value * PAGE_SIZE, filtered.value.length),
+    Math.min(currentPage.value * pageSize.value, filtered.value.length),
   )
   function goToPage(n: number) {
     currentPage.value = Math.min(Math.max(1, n), totalPages.value)
   }
 
-  // Reset to the first page whenever any filter changes
-  watch([search, activeSource, activeCategory, activeTopic, favoritesOnly], () => {
-    currentPage.value = 1
-  })
+  // Reset to the first page whenever a filter or the page size changes
+  watch(
+    [search, activeSource, activeCategory, activeTopic, favoritesOnly, pageSize],
+    () => {
+      currentPage.value = 1
+    },
+  )
   // Clamp back into range when fewer results push the current page out of bounds
   watch(totalPages, (tp) => {
     if (currentPage.value > tp) currentPage.value = tp
@@ -188,7 +209,8 @@ export function useNews() {
     pageStart,
     pageEnd,
     goToPage,
-    pageSize: PAGE_SIZE,
+    pageSize,
+    setPageSize,
     favoriteCount,
     isFavorite,
     toggleFavorite,
