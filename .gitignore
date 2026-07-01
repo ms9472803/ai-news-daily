@@ -3,6 +3,9 @@ dist
 dist-ssr
 *.local
 *.tsbuildinfo
+# Generated at build time by scripts/fetch-news.mjs — not tracked to avoid
+# stale committed data. Run `pnpm fetch-news` locally; CI regenerates it.
+public/news.json
 .DS_Store
 .vscode/*
 !.vscode/extensions.json

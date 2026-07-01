@@ -47,7 +47,7 @@ git clone git@github.com:ms9472803/ai-news-daily.git
 cd ai-news-daily
 pnpm install
 
-# 1. Collect data once (generates public/news.json)
+# 1. Collect data once (generates public/news.json — git-ignored, run this first)
 pnpm fetch-news
 
 # 2. Start the dev server
